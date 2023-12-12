@@ -1,5 +1,4 @@
-// vpc-stack.ts
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, Tags } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { setupNetworkingResources } from './networking-resources';
@@ -14,7 +13,6 @@ export class VpcStack extends Stack {
     this.publicSubnets = [];
     this.privateSubnets = [];
 
-    // Create the VPC
     const vpc = new ec2.Vpc(this, 'MyVPC', {
       maxAzs: 3,
       cidr: '10.0.0.0/16',
@@ -22,34 +20,26 @@ export class VpcStack extends Stack {
       subnetConfiguration: []
     });
 
-    // Define CIDR blocks for the public subnets
-    const publicSubnetCidrBlocks = ['10.0.1.0/24', '10.0.2.0/24', '10.0.3.0/24'];
-
-    // Manually create public subnets
-    publicSubnetCidrBlocks.forEach((cidrBlock, index) => {
-      const publicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${index + 1}`, {
+    for (let i = 0; i < 3; i++) {
+      const publicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i + 1}`, {
+        availabilityZone: vpc.availabilityZones[i],
         vpcId: vpc.vpcId,
-        cidrBlock,
-        availabilityZone: vpc.availabilityZones[index],
-        mapPublicIpOnLaunch: true
+        cidrBlock: `10.0.${i + 1}.0/24`
       });
+      Tags.of(publicSubnet).add('Name', `public-${['one', 'two', 'three'][i]}`);
       this.publicSubnets.push(publicSubnet);
-    });
+    }
 
-    // Define CIDR blocks for the private subnets
-    const privateSubnetCidrBlocks = ['10.0.101.0/24', '10.0.102.0/24', '10.0.103.0/24'];
-
-    // Manually create private subnets
-    privateSubnetCidrBlocks.forEach((cidrBlock, index) => {
-      const privateSubnet = new ec2.PrivateSubnet(this, `PrivateSubnet${index + 1}`, {
+    for (let i = 0; i < 3; i++) {
+      const privateSubnet = new ec2.PrivateSubnet(this, `PrivateSubnet${i + 1}`, {
+        availabilityZone: vpc.availabilityZones[i],
         vpcId: vpc.vpcId,
-        cidrBlock,
-        availabilityZone: vpc.availabilityZones[index]
+        cidrBlock: `10.0.10${i + 1}.0/24`
       });
+      Tags.of(privateSubnet).add('Name', `private-${['one', 'two', 'three'][i]}`);
       this.privateSubnets.push(privateSubnet);
-    });
+    }
 
-    // Setup networking resources like Internet Gateway and NAT Gateway
     setupNetworkingResources(this, vpc, this.publicSubnets);
   }
 }
