@@ -33,6 +33,12 @@ To run tests with Jest:
 
 * `npm test` This command will execute the test suite defined in the test/ directory.
 
+## How to Use this Script.sh
+
+* `chmod +x script.sh` Permissions: Ensure that the script has execution permissions
+
+* `./script.sh` Running the Script: Execute the script before you start your CDK deployment process. This can be done manually, or as part of a CI/CD pipeline setup.
+
 ## Building and Running the Docker Image
 
 
@@ -45,3 +51,6 @@ To run tests with Jest:
 AWS Credentials: Ensure AWS credentials are available to the Docker container. You might need to pass them as environment variables or mount an AWS credentials file.
 Security: Be cautious with handling AWS credentials. Avoid including them directly in the Dockerfile.
 NAT Gateway Placement: The NAT Gateway is placed in the first public subnet. Adjust as needed based on your topology.
+
+
+
